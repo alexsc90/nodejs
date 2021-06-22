@@ -1,19 +1,29 @@
 const express = require('express');
+const app = express();
+const server = require('http').Server(app);
+
+const config = require('./config')
+
+const cors = require('cors');
 const bodyParser = require('body-parser');
-
-// const router = require('./components/message/network'); 
-
+const socket = require('./socket');
+const db = require('./db');
 const router = require('./network/routes');
 
-var app = express();
+db(config.dbUrl);
+
+app.use(cors());
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
-//app.use(router);
+
+socket.connect(server);
 
 router(app);
 
 
-app.use('/app', express.static('public'));
+app.use(publicRoute, express.static('public'));
 
-app.listen(3000);
-console.log('La aplicacion esta escuchando en http://localhost:3000');
+server.listen(config.port, () => {
+    console.log('La aplicacion esta escuchando en ' + config.host + ':' + config.port);
+});
